@@ -49,15 +49,15 @@ export const Register = () => {
   const signUp = async () => {
     const saveUser = await app
       .auth()
-      .signUpWithEmailAndPassword(email, password);
+      .createUserWithEmailAndPassword(email, password);
 
     if (saveUser) {
-      await app.firestore().collection("users").doc(saveUser.uid).set({
+      await app.firestore().collection("users").doc(saveUser.user.uid).set({
         avatar,
         name,
         email,
         password,
-        createdBy: saveUser.uid,
+        createdBy: saveUser.user.uid,
       });
       history.push("/");
     }
@@ -73,7 +73,18 @@ export const Register = () => {
 
   const GoogleSignIn = async () => {
     const provider = new firebase.auth.GoogleAuthProvider();
-    await app.auth().signInWithPopup(provider);
+    const saveUser = await app.auth().signInWithPopup(provider);
+
+    if (saveUser) {
+      await app.firestore().collection("users").doc(saveUser.user.uid).set({
+        avatar: saveUser.user.photoURL,
+        name: saveUser.user.displayName,
+        email: saveUser.user.email,
+        password,
+        createdBy: saveUser.user.uid,
+      });
+      history.push("/");
+    }
 
     history.push("/");
   };
@@ -98,15 +109,33 @@ export const Register = () => {
                 <Form>
                   <Holder>
                     <MainLabel>Name</MainLabel>
-                    <MainInput placeholder="Enter Name" />
+                    <MainInput
+                      placeholder="Enter Name"
+                      value={name}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                      }}
+                    />
                   </Holder>
                   <Holder>
                     <MainLabel>Email</MainLabel>
-                    <MainInput placeholder="Enter Email" />
+                    <MainInput
+                      placeholder="Enter Email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                      }}
+                    />
                   </Holder>
                   <Holder>
                     <MainLabel>Password</MainLabel>
-                    <MainInput placeholder="Enter Password" />
+                    <MainInput
+                      placeholder="Enter Password"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                      }}
+                    />
                   </Holder>
 
                   <ButtonB>
@@ -175,6 +204,7 @@ const Sign = styled.div`
   align-items: center;
   flex-direction: column;
 `;
+
 const ButtonB = styled.div`
   width: 100%;
   justify-content: center;
@@ -206,6 +236,7 @@ const Form = styled.div`
 
   border-radius: 5px;
 `;
+
 const Holder = styled.div`
   display: flex;
   flex-direction: column;
@@ -252,6 +283,7 @@ const Card = styled.div`
   flex-direction: column;
   align-items: center;
 `;
+
 const Label = styled.label`
   margin: 20px 0;
   background-color: #004080;

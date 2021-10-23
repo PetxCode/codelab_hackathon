@@ -29,7 +29,7 @@ export const Header = () => {
             </Icon>
             <span>Create</span>
           </Nav>
-          <Nav to="/">
+          <Nav to="/stat">
             <Icon>
               <AiFillPieChart />
             </Icon>

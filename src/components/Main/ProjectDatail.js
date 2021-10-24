@@ -9,13 +9,19 @@ import firebase from "firebase";
 import { AuthContext } from "./AuthProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { addTask, addOnGoing, remove } from "../../Global/taskState";
+import { Rating } from "react-simple-star-rating";
 
 const ProjectDatail = () => {
   const { id } = useParams();
   const { currentUser } = React.useContext(AuthContext);
   const dispatch = useDispatch();
   const taskData = useSelector((state) => state.myReducer.task);
+  const taskDataOnGoing = useSelector((state) => state.myReducer.onGoing);
+  const [rating, setRating] = useState(0);
 
+  const onRating = (rate) => {
+    setRating(rate);
+  };
   const [userData, setUserData] = useState([]);
 
   const getUserData = async (id) => {
@@ -35,22 +41,22 @@ const ProjectDatail = () => {
       .onSnapshot((snapShot) => {
         const r = [];
         snapShot.forEach((doc) => {
-          r.push({ ...doc.data(), id: doc.id });
+          r.push({ ...doc.data() });
         });
         dispatch(addTask(r));
       });
   };
-
+  //, id: doc.id
   const [projectTask, setProjectTask] = useState([
     {
       task: "",
       team: "",
-      uid: uuid(),
+      id: uuid(),
     },
   ]);
 
   const addMoreEntry = () => {
-    setProjectTask([...projectTask, { task: "", team: "", uid: uuid() }]);
+    setProjectTask([...projectTask, { task: "", team: "", id: uuid() }]);
   };
 
   const removeEntry = (i) => {
@@ -74,7 +80,7 @@ const ProjectDatail = () => {
       .doc()
       .set({
         projectTask,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        // createdAt: firebase.firestore.FieldValue.serverTimestamp().toDate(),
         createdBy: currentUser.uid,
       });
   };
@@ -94,7 +100,7 @@ const ProjectDatail = () => {
             <Holder>
               <MainLabel>Team Members</MainLabel>
 
-              {userData.projectTeam?.map((props) => (
+              {userData?.projectTeam?.map((props) => (
                 <TeamProfile img uid team={props.team} />
               ))}
             </Holder>
@@ -155,9 +161,9 @@ const ProjectDatail = () => {
             </Holder>
           </Card>
 
-          {taskData?.map((props) => (
+          {taskData?.map((props, i) => (
             <Card>
-              {props.projectTask.map((props) => (
+              {props?.projectTask.map((props) => (
                 <div>
                   <div>{props.task}</div>
                   <div>
@@ -166,7 +172,7 @@ const ProjectDatail = () => {
                   <button
                     onClick={() => {
                       dispatch(addOnGoing(props));
-                      dispatch(remove(props));
+                      // dispatch(remove(props));
                     }}
                   >
                     add to on-going
@@ -177,10 +183,26 @@ const ProjectDatail = () => {
           ))}
 
           <Card>
-            <div>
-              <div>task</div>
-              <div>who</div>
-            </div>
+            {taskDataOnGoing.map((props, i) => (
+              <div style={{ margin: "10px" }}>
+                <div>{props.task}</div>
+                <div>
+                  <TeamProfile img team={props.team} />
+                </div>
+                <Rating
+                  onClick={onRating}
+                  ratingValue={rating}
+                  transition={true}
+                />
+                <div
+                  onClick={() => {
+                    console.log(`Hello ${props.id}`);
+                  }}
+                >
+                  click
+                </div>
+              </div>
+            ))}
           </Card>
         </MainComp>
       </Wrapper>

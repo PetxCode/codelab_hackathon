@@ -13,8 +13,14 @@ const taskState = createSlice({
       state.task = payload;
     },
     addOnGoing: (state, { payload }) => {
-      const file = { ...payload, QTY: 1 };
-      state.onGoing.push(file);
+      const check = state.onGoing.findIndex((el) => el.id === payload.id);
+
+      if (check >= 0) {
+        state.onGoing[check].QTY += 1;
+      } else {
+        const file = { ...payload, QTY: 1 };
+        state.onGoing.push(file);
+      }
     },
     remove: (state, { payload }) => {
       state.task = state.task.filter((el) => el.id !== payload.id);

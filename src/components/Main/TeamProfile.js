@@ -22,9 +22,9 @@ const TeamProfile = ({ uid, img, name, team }) => {
   return (
     <Container>
       <Wrapper>
-        {img ? <Image src={myUser.avatar} /> : null}
-        {name ? <Title>{myUser.name}</Title> : null}
-        {uid ? <Desc>{myUser.createdBy}</Desc> : null}
+        {img ? <Image src={myUser?.avatar} /> : null}
+        {name ? <Title>{myUser?.name}</Title> : null}
+        {uid ? <Desc>{myUser?.createdBy}</Desc> : null}
       </Wrapper>
     </Container>
   );
